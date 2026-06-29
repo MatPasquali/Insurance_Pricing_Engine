@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.ipynb_checkpoints/
+data/raw/
+data/processed/
+scikit_learn_data/
+*.egg-info/
+.pytest_cache/
+.DS_Store
