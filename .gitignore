@@ -9,4 +9,8 @@ data/processed/
 scikit_learn_data/
 *.egg-info/
 .pytest_cache/
+.ruff_cache/
+mlruns/
+mlartifacts/
+mlflow.db
 .DS_Store

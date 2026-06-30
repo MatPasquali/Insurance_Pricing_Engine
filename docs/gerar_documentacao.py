@@ -16,9 +16,9 @@ from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Inches, Pt, RGBColor
 
-VERSION = "0.2.0"
-LAST_UPDATE = "2026-06-13"
-STATUS = "v2 CONCLUIDA (elasticidade + otimizacao de premio na base ES; v1 completa)"
+VERSION = "0.3.0"
+LAST_UPDATE = "2026-06-29"
+STATUS = "v3 CONCLUIDA (MLOps: testes/CI, drift PSI, MLflow, Docker; v1+v2 completas)"
 
 OUT = pathlib.Path(__file__).resolve().parent / "Documentacao_Pricing_Engine.docx"
 
@@ -26,6 +26,12 @@ ACCENT = RGBColor(0x1F, 0x4E, 0x79)  # azul corporativo
 
 # (versao, data, [mudancas])
 CHANGELOG = [
+    ("0.3.0", "2026-06-29", [
+        "v3 MLOps: testes pytest (8) + lint ruff + CI no GitHub Actions.",
+        "Monitoramento de drift via PSI (src/pricing/monitoring.py, run_drift_report.py): ES 2016->2017 estavel.",
+        "MLflow tracking (backend sqlite) do experimento GLM vs GBM. Dockerfile da demo Streamlit.",
+        "Repositorio publicado no GitHub (MatPasquali/Insurance_Pricing_Engine).",
+    ]),
     ("0.2.0", "2026-06-13", [
         "v2 CONCLUIDA: base ES (es_data.py/es_models.py, run_pricing_optimization.py, notebook 04).",
         "Custo GBM-Poisson (capado) + retencao logistica/GBM (AUC ~0,70 out-of-time) + otimizacao lucro x retencao.",
@@ -136,7 +142,7 @@ def build() -> None:
     rs.font.size = Pt(13)
 
     doc.add_paragraph()
-    meta = add_table(
+    add_table(
         doc, ["Campo", "Valor"],
         [
             ["Autor", "Mateus de Pasquali da Silva"],
@@ -336,7 +342,7 @@ def build() -> None:
         [
             ["v1", "Nucleo GLM + XAI: freq, sev, premio puro, GBM+SHAP, notebooks, demo Streamlit", "Concluida"],
             ["v2", "Elasticidade e otimizacao de premio (portfolio ES, dados reais de preco/lapso)", "Concluida"],
-            ["v3", "MLOps: MLflow, Docker, drift PSI, CI no GitHub Actions", "Planejado"],
+            ["v3", "MLOps: MLflow, Docker, drift PSI, CI no GitHub Actions", "Concluida"],
             ["v4", "Score territorial Brasil (IBGE/CNEFE/CEP + SUSEP/Autoseg) como feature", "Planejado"],
         ],
     )

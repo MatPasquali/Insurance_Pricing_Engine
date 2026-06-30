@@ -21,7 +21,6 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
-import pandas as pd  # noqa: E402
 from sklearn.metrics import mean_poisson_deviance  # noqa: E402
 from sklearn.model_selection import train_test_split  # noqa: E402
 from sklearn.preprocessing import OrdinalEncoder  # noqa: E402

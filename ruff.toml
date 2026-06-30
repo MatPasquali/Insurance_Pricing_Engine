@@ -1,0 +1,3 @@
+# Notebooks são narrativa (estilo livre, imports após sys.path, etc.);
+# lintamos apenas o código de produção (src/, runners, tests).
+extend-exclude = ["notebooks", "mlruns"]

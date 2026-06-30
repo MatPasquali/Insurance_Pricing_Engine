@@ -1,0 +1,14 @@
+.git/
+data/
+mlruns/
+mlartifacts/
+mlflow.db
+notebooks/
+reports/
+docs/*.docx
+__pycache__/
+**/__pycache__/
+.pytest_cache/
+.ruff_cache/
+scikit_learn_data/
+*.egg-info/

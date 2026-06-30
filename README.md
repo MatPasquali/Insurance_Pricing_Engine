@@ -1,5 +1,7 @@
 # 🚗 Insurance Pricing Engine
 
+![CI](https://github.com/MatPasquali/Insurance_Pricing_Engine/actions/workflows/ci.yml/badge.svg)
+
 > **PT** · Um motor de **precificação de seguro de automóvel** construído do zero — e, ao mesmo tempo, um **guia didático** do negócio: o que é o seguro, quais KPIs importam e o que realmente faz um bom motor de preço.
 >
 > **EN** · An auto-insurance **pricing engine** built from scratch, doubling as a hands-on guide to the business: how insurance works, the KPIs that matter, and what makes a good pricing model.
@@ -171,6 +173,16 @@ Dois "atos", cada conceito acima virando código que roda. Dataset principal: **
 
 > 🧪 **A lição honesta da v2:** a elasticidade saiu **fraca** (endogeneidade), então o otimizador irrestrito "sobe ao teto" — um resultado que eu **mostro como armadilha**, não como vitória. O número crível é o restrito; o número de produção exigiria um experimento de preço.
 
+### Ato 3 — v3: MLOps (produção) ✅
+
+| Entrega | O que demonstra |
+|---|---|
+| **Testes** (pytest) | 8 testes do motor (PSI, modelos, dados) — a base do CI |
+| **CI** (GitHub Actions) | `ruff` (lint) + `pytest` a cada push — badge verde no topo |
+| **Drift monitoring** (PSI) | `run_drift_report.py` compara 2016→2017 da carteira ES (hoje estável; o framework dispara alerta quando muda) |
+| **MLflow** | tracking de experimentos (GLM vs GBM) em backend SQLite |
+| **Docker** | `Dockerfile` containeriza a demo Streamlit |
+
 ---
 
 ## 🗂️ Como navegar
@@ -183,7 +195,7 @@ Dois "atos", cada conceito acima virando código que roda. Dataset principal: **
 | [`03_diagnostics`](notebooks/03_diagnostics.ipynb) | Relatividades, observado×previsto, lift, Gini/Lorenz |
 | [`04_pricing_optimization`](notebooks/04_pricing_optimization.ipynb) | Elasticidade, custo, otimização e a armadilha da endogeneidade |
 
-**Motor (código reutilizável):** [`src/pricing/`](src/pricing/) — `data`, `features`, `frequency`, `severity`, `pure_premium`, `gbm`, `etl` (v1); `es_data`, `es_models` (v2).
+**Motor (código reutilizável):** [`src/pricing/`](src/pricing/) — `data`, `features`, `frequency`, `severity`, `pure_premium`, `gbm`, `etl` (v1); `es_data`, `es_models` (v2); `monitoring` (v3 — PSI). Testes em [`tests/`](tests/), CI em [`.github/workflows/ci.yml`](.github/workflows/ci.yml), container no [`Dockerfile`](Dockerfile).
 **Documentação viva:** [`docs/Documentacao_Pricing_Engine.docx`](docs/Documentacao_Pricing_Engine.docx), gerada por script versionado.
 
 ---
@@ -199,6 +211,9 @@ python run_pure_premium.py             # v1: prêmio puro (freq×sev vs Tweedie)
 python run_gbm_vs_glm.py               # v1: GLM vs GBM + SHAP
 python run_pricing_optimization.py     # v2: elasticidade + otimização (validação temporal)
 python -m streamlit run streamlit_app.py   # demo interativa
+python run_drift_report.py             # v3: monitoramento de drift (PSI)
+python run_mlflow_experiment.py        # v3: tracking de experimentos (MLflow)
+pytest -q                              # roda os testes (8)
 ```
 
 ## 🧰 Stack
@@ -209,7 +224,7 @@ Python 3.14 · scikit-learn · SHAP · pandas · NumPy · matplotlib · Streamli
 
 - **v1 — Núcleo GLM + XAI** ✅
 - **v2 — Elasticidade & otimização de prêmio** ✅
-- **v3 — MLOps**: MLflow (registry/tracking), Docker, monitoramento de drift (PSI), CI no GitHub Actions
+- **v3 — MLOps** ✅: testes + CI (ruff/pytest), drift monitoring (PSI), MLflow (tracking), Docker
 - **v4 — Score territorial (Brasil)**: rating de risco por CEP (IBGE/CNEFE + SUSEP) como feature
 
 ---
