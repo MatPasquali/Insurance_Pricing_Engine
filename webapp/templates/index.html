@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Motor de Pricing de Seguros — software</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <div>
+      <h1>🚗 Motor de Pricing de Seguros</h1>
+      <p>GLM (frequência × severidade) + GBM, com explicação SHAP. Base: freMTPL2.</p>
+    </div>
+    <a class="repo" href="{{ repo_url }}" target="_blank" rel="noopener">
+      ⌥ Repositório no GitHub <span class="ver">v{{ version }}</span>
+    </a>
+  </header>
+
+  <main>
+    <!-- FORMULÁRIO -->
+    <section class="panel">
+      <h2>Perfil do segurado</h2>
+      <form id="profile-form">
+        {% for c in numeric %}
+        <label class="field">
+          <span class="field-name">
+            {{ c }}
+            <span class="info" tabindex="0">ℹ<span class="tip"><b>{{ c }}</b> — {{ variables[c].o_que }}<br><em>No modelo:</em> {{ variables[c].no_modelo }}</span></span>
+            <b class="val" id="val-{{ c }}"></b>
+          </span>
+          <input type="range" name="{{ c }}" data-name="{{ c }}"
+                 min="{{ ranges[c].min }}" max="{{ ranges[c].max }}" value="{{ ranges[c].med }}" step="any">
+        </label>
+        {% endfor %}
+        {% for c in categorical %}
+        <label class="field">
+          <span class="field-name">
+            {{ c }}
+            <span class="info" tabindex="0">ℹ<span class="tip"><b>{{ c }}</b> — {{ variables[c].o_que }}<br><em>No modelo:</em> {{ variables[c].no_modelo }}</span></span>
+          </span>
+          <select name="{{ c }}">
+            {% for o in cats[c] %}<option value="{{ o.code }}">{{ o.label }}</option>{% endfor %}
+          </select>
+        </label>
+        {% endfor %}
+        <button type="submit">Calcular prêmio</button>
+      </form>
+    </section>
+
+    <!-- RESULTADO -->
+    <section class="panel">
+      <h2>Prêmio puro estimado</h2>
+      <div class="metrics">
+        <div class="metric"><span class="m-label">Frequência (GLM)</span><span class="m-value" id="freq_glm">—</span></div>
+        <div class="metric"><span class="m-label">Frequência (GBM)</span><span class="m-value" id="freq_gbm">—</span></div>
+        <div class="metric"><span class="m-label">Severidade média</span><span class="m-value" id="severity">—</span></div>
+        <div class="metric highlight"><span class="m-label">Prêmio puro — GLM</span><span class="m-value" id="premium_glm">—</span></div>
+        <div class="metric highlight"><span class="m-label">Prêmio puro — GBM</span><span class="m-value" id="premium_gbm">—</span></div>
+      </div>
+      <p class="hint">Prêmio puro = frequência × severidade (custo esperado de sinistros por ano).</p>
+
+      <h3>Como o GLM chegou nesse número?</h3>
+      <p class="hint">A frequência do GLM é um <b>produto</b>: a base da carteira multiplicada pela relatividade de cada variável (×&gt;1 encarece, ×&lt;1 barateia).</p>
+      <div id="glm-decomp" class="decomp"><span class="empty">Calcule um perfil para ver a decomposição.</span></div>
+
+      <h3>E o GBM? — SHAP (frequência)</h3>
+      <img id="shap" alt="Explicação SHAP da previsão">
+    </section>
+  </main>
+
+  <!-- METODOLOGIA / EXPLICAÇÕES -->
+  <section class="panel methodology">
+    <details>
+      <summary>📖 Entenda o modelo — seguro, pricing, GLM, GBM e as variáveis</summary>
+      <div class="md-body">
+        {% for bloco in conceitos %}
+        <h3>{{ bloco.titulo }}</h3>
+        <p>{{ bloco.texto }}</p>
+        {% endfor %}
+        <h3>6. As variáveis, uma a uma</h3>
+        <table class="vartable">
+          <thead><tr><th>Variável</th><th>O que é</th><th>Como entra no modelo</th></tr></thead>
+          <tbody>
+            {% for c, v in variables.items() %}
+            <tr><td><b>{{ c }}</b></td><td>{{ v.o_que }}</td><td>{{ v.no_modelo }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

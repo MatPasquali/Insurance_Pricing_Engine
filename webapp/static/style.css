@@ -1,0 +1,115 @@
+:root {
+  --bg: #0f1720;
+  --panel: #182230;
+  --accent: #1f4e79;
+  --accent2: #c0504d;
+  --up: #c0504d;
+  --down: #2f7ed8;
+  --text: #e6edf3;
+  --muted: #8b98a5;
+  --line: #243040;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+a { color: #6db3f2; }
+
+header {
+  display: flex; justify-content: space-between; align-items: center; gap: 16px;
+  padding: 20px 32px; border-bottom: 1px solid var(--line);
+}
+header h1 { margin: 0 0 4px; font-size: 1.5rem; }
+header p { margin: 0; color: var(--muted); }
+.repo {
+  white-space: nowrap; text-decoration: none; color: var(--text);
+  border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; background: #0f1720;
+}
+.repo:hover { border-color: var(--accent); }
+.ver { color: var(--muted); font-size: 0.8rem; }
+
+main {
+  display: grid; grid-template-columns: 340px 1fr; gap: 24px;
+  padding: 24px 32px; align-items: start;
+}
+@media (max-width: 860px) { main { grid-template-columns: 1fr; } }
+
+.panel {
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: 12px; padding: 20px;
+}
+.panel h2 { margin-top: 0; font-size: 1.15rem; }
+.panel h3 { margin: 18px 0 6px; font-size: 1rem; }
+
+/* Formulário */
+.field { display: block; margin-bottom: 14px; }
+.field-name { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 4px; }
+.field-name .val { color: var(--accent2); font-size: 0.9rem; }
+input[type=range] { width: 100%; accent-color: var(--accent2); }
+select {
+  width: 100%; padding: 8px; border-radius: 8px;
+  background: #0f1720; color: var(--text); border: 1px solid #2c3a4c;
+}
+button {
+  width: 100%; margin-top: 8px; padding: 12px; background: var(--accent);
+  color: #fff; border: 0; border-radius: 8px; font-size: 1rem; cursor: pointer;
+}
+button:hover { background: #2a5f93; }
+button:disabled { opacity: 0.6; cursor: progress; }
+
+/* Tooltip de variável */
+.info {
+  position: relative; cursor: help; color: var(--accent);
+  border: 1px solid var(--accent); border-radius: 50%;
+  width: 16px; height: 16px; display: inline-flex; align-items: center;
+  justify-content: center; font-size: 11px; margin-left: 4px;
+}
+.info .tip {
+  display: none; position: absolute; left: 0; top: 22px; z-index: 20;
+  width: 250px; background: #0b1118; color: var(--text);
+  border: 1px solid var(--accent); border-radius: 8px; padding: 10px;
+  font-size: 0.8rem; line-height: 1.35; font-weight: 400; box-shadow: 0 6px 18px rgba(0,0,0,.5);
+}
+.info .tip em { color: var(--muted); font-style: normal; }
+.info:hover .tip, .info:focus .tip { display: block; }
+
+/* Métricas */
+.metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.metric { background: #0f1720; border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+.metric.highlight { border-color: var(--accent); }
+.m-label { display: block; font-size: 0.8rem; color: var(--muted); }
+.m-value { display: block; font-size: 1.5rem; font-weight: 600; margin-top: 4px; }
+.hint { color: var(--muted); font-size: 0.85rem; }
+
+/* Decomposição do GLM */
+.decomp { display: flex; flex-direction: column; gap: 4px; }
+.decomp .empty { color: var(--muted); font-size: 0.85rem; }
+.d-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 7px 10px; background: #0f1720; border: 1px solid var(--line); border-radius: 7px;
+}
+.d-row span { color: var(--muted); font-size: 0.9rem; }
+.d-row b { font-variant-numeric: tabular-nums; }
+.d-row .up { color: var(--up); }
+.d-row .down { color: var(--down); }
+.d-base { border-color: #2c3a4c; }
+.d-total { border-color: var(--accent); background: #11202f; }
+.d-total span, .d-total b { color: var(--text); font-weight: 700; }
+
+#shap { width: 100%; background: #fff; border-radius: 8px; margin-top: 8px; }
+
+/* Metodologia */
+.methodology { margin: 0 32px 32px; }
+.methodology summary {
+  cursor: pointer; font-size: 1.1rem; font-weight: 600; list-style: none;
+}
+.methodology summary::before { content: "▸ "; color: var(--accent); }
+.methodology details[open] summary::before { content: "▾ "; }
+.md-body { margin-top: 12px; max-width: 900px; }
+.md-body p { color: #cdd7e1; line-height: 1.5; }
+.vartable { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 0.88rem; }
+.vartable th, .vartable td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+.vartable th { background: #0f1720; color: var(--muted); }

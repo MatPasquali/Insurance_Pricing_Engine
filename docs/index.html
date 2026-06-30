@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Insurance Pricing Engine — como uma seguradora precifica um seguro de automóvel</title>
+  <meta name="description" content="Tutorial visual de como funciona um motor de precificação de seguro de automóvel: negócio, demanda, frequência, severidade, GLM, GBM e SHAP, com resultados reais." />
+  <meta property="og:title" content="Insurance Pricing Engine — tutorial de pricing de auto" />
+  <meta property="og:description" content="Do negócio ao modelo: frequência, severidade, GLM, GBM, SHAP e otimização de prêmio, explicados com resultados reais." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/site.css" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M24 3l16 5v14c0 10-7 16-16 19C15 38 8 32 8 22V8z' fill='%23143a5c'/%3E%3Cpath d='M16 19l4-4 3 3 6-7' fill='none' stroke='%230bb3c6' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+</head>
+<body>
+
+  <!-- LOGO (reutilizada) definida como template inline -->
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="#topo" aria-label="Início">
+        <svg viewBox="0 0 48 48" width="34" height="34" aria-hidden="true">
+          <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1c4e7a"/><stop offset="1" stop-color="#0e2a44"/></linearGradient></defs>
+          <path d="M24 3l16 5v14c0 10-7 16-16 19C15 38 8 32 8 22V8z" fill="url(#lg)"/>
+          <path d="M15.5 27.5h17l-1.8-4.6c-.3-.8-1-1.3-1.9-1.3H19.2c-.9 0-1.6.5-1.9 1.3l-1.8 4.6z" fill="#fff"/>
+          <rect x="14.5" y="27" width="19" height="4.6" rx="1.3" fill="#fff"/>
+          <circle cx="19" cy="32" r="1.6" fill="#0e2a44"/><circle cx="29" cy="32" r="1.6" fill="#0e2a44"/>
+          <path d="M16 19l4-4 3 3 6-7" fill="none" stroke="#0bb3c6" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Pricing Engine<small>Seguro de automóvel</small></span>
+      </a>
+      <nav class="nav-links" aria-label="Seções">
+        <a href="#negocio">O negócio</a>
+        <a href="#premio">Prêmio puro</a>
+        <a href="#variaveis">Variáveis</a>
+        <a href="#glm">GLM</a>
+        <a href="#gbm">GBM e SHAP</a>
+        <a href="#preco">Preço</a>
+        <a href="#engenharia">Engenharia</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero" id="topo">
+    <div class="container">
+      <span class="eyebrow">Tutorial de precificação · Seguro de automóvel</span>
+      <h1>Como uma seguradora chega ao <span class="accent">preço justo</span> do seu seguro.</h1>
+      <p class="lead">Esta página é um guia visual do projeto: você vai entender o negócio, o que é frequência e severidade, como um GLM e um GBM funcionam, o que o SHAP explica e como o custo vira preço. Tudo com os resultados reais do nosso motor de pricing.</p>
+      <div class="ctas">
+        <a class="btn btn-primary" href="#negocio">Começar o tutorial</a>
+        <a class="btn btn-ghost" href="https://github.com/MatPasquali/Insurance_Pricing_Engine" target="_blank" rel="noopener">Ver o repositório</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- MÉTRICAS -->
+  <div class="metrics"><div class="container"><div class="metrics-grid">
+    <div class="metric"><div class="v">678.013</div><div class="l">Apólices modeladas</div><div class="d">base freMTPL2 (auto)</div></div>
+    <div class="metric"><div class="v">+5,15%</div><div class="l">GBM mais preciso que o GLM</div><div class="d">redução de deviance</div></div>
+    <div class="metric"><div class="v">1,04</div><div class="l">Calibração da carteira</div><div class="d">prêmio puro Tweedie (ideal ≈ 1)</div></div>
+    <div class="metric"><div class="v">0,70</div><div class="l">AUC de retenção</div><div class="d">validação temporal (2017)</div></div>
+  </div></div></div>
+
+  <!-- O NEGÓCIO -->
+  <section id="negocio">
+    <div class="container">
+      <span class="eyebrow">Capítulo 1</span>
+      <h2 class="s-title">O negócio: vender uma promessa, depois descobrir o custo.</h2>
+      <p class="s-lead">Seguro é transferência de risco. O cliente paga um valor pequeno e certo (o prêmio) e a seguradora assume um prejuízo grande e incerto (o sinistro). A maioria nunca aciona, alguns acionam, e o prêmio de todos paga os sinistros de poucos. Isso se chama mutualização.</p>
+      <div class="grid">
+        <div class="card">
+          <span class="tag">Ciclo invertido</span>
+          <h3>O preço vem antes do custo</h3>
+          <p>Uma fábrica sabe o custo antes de vender. A seguradora vende primeiro e só descobre o custo depois, quando o sinistro acontece. Precificar é estimar um custo que ainda não existe, e por isso o seguro é, no fundo, estatística aplicada.</p>
+        </div>
+        <div class="card">
+          <span class="tag">Saúde da operação</span>
+          <h3>Combined ratio</h3>
+          <p>Combined ratio = sinistros sobre prêmios (loss ratio) mais despesas sobre prêmios (expense ratio). Abaixo de 100% há lucro técnico, acima há prejuízo. Poucos pontos percentuais separam um ano excelente de um desastre, e o que mais mexe nesse número é o preço.</p>
+        </div>
+        <div class="card">
+          <span class="tag">Por que precificar bem</span>
+          <h3>Seleção adversa</h3>
+          <p>Se você cobra o mesmo de todos, o bom motorista (que paga caro pelo risco que não tem) migra para o concorrente mais barato, e o mau motorista fica. A carteira apodrece. O preço precisa refletir o risco de cada perfil.</p>
+        </div>
+        <div class="card">
+          <span class="tag">Demanda</span>
+          <h3>Preço também afeta quem fica</h3>
+          <p>Subir o preço aumenta a margem, mas afasta clientes. Esse equilíbrio entre lucro e retenção é a parte comercial do pricing, e exige estimar a sensibilidade da demanda ao preço (a elasticidade). Voltamos a ela no Capítulo 6.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRÊMIO PURO -->
+  <section id="premio" class="alt">
+    <div class="container">
+      <span class="eyebrow">Capítulo 2</span>
+      <h2 class="s-title">Prêmio puro: o custo esperado do risco.</h2>
+      <p class="s-lead">O custo esperado de sinistros se decompõe em duas perguntas independentes: com que frequência a pessoa sinistra, e quanto custa cada sinistro. Multiplicando as duas, chega-se ao prêmio puro (o piso do preço, antes de despesas, margem e impostos).</p>
+      <div class="formula">Prêmio puro = <b>Frequência</b> &nbsp;×&nbsp; <b>Severidade</b></div>
+      <div class="grid">
+        <div class="card"><h3>Frequência</h3><p>Quantos sinistros por ano aquele perfil tende a ter. É um evento raro: a maioria das apólices tem zero. Por isso modelamos com a distribuição de Poisson, e usamos a exposição (fração do ano coberta) como base de comparação justa.</p></div>
+        <div class="card"><h3>Severidade</h3><p>Quando há sinistro, quanto custa em média. O custo é positivo e tem cauda pesada (poucos sinistros muito caros), então usamos a distribuição Gamma. O prêmio puro inteiro também pode ser modelado de uma vez com a Tweedie.</p></div>
+      </div>
+      <p class="s-lead" style="margin-top:1.4rem">Separar é melhor porque os fatores que mudam a frequência (idade, bônus-malus) são diferentes dos que mudam a severidade (valor do veículo). E há duas coisas que todo modelo de pricing precisa acertar: a calibração (o nível total, para o caixa fechar) e a discriminação (ranquear bom e mau risco). Por isso usamos métricas como deviance e Gini, não a acurácia genérica.</p>
+    </div>
+  </section>
+
+  <!-- VARIÁVEIS -->
+  <section id="variaveis">
+    <div class="container">
+      <span class="eyebrow">Capítulo 3</span>
+      <h2 class="s-title">As variáveis: o que o modelo enxerga.</h2>
+      <p class="s-lead">Cada apólice traz informações do condutor, do veículo e da região. São elas que o modelo usa para estimar o risco de cada perfil.</p>
+      <table class="vartable">
+        <thead><tr><th>Variável</th><th>O que é</th><th>Como entra no modelo</th></tr></thead>
+        <tbody>
+          <tr><td>BonusMalus</td><td>Índice de 50 a 230. Abaixo de 100 é bônus (bom histórico), acima é malus (sinistrou).</td><td>O sinal de risco individual mais forte em auto. Concentra a sinistralidade da pessoa.</td></tr>
+          <tr><td>DrivAge</td><td>Idade do condutor principal.</td><td>Jovens têm frequência bem maior (curva em U com a idade). Driver de peso.</td></tr>
+          <tr><td>VehAge</td><td>Idade do veículo, em anos.</td><td>Veículos novos e velhos têm padrões distintos. Efeito não linear, bem captado pelo GBM.</td></tr>
+          <tr><td>VehPower</td><td>Potência do veículo (categoria).</td><td>Mais potência tende a mais frequência. Cada nível tem sua relatividade.</td></tr>
+          <tr><td>Density</td><td>Densidade populacional da região (hab/km²).</td><td>Áreas urbanas têm mais trânsito e exposição, logo mais sinistros.</td></tr>
+          <tr><td>VehBrand</td><td>Marca do veículo (B1 a B14, anonimizadas).</td><td>Proxy do tipo de carro e do perfil de quem o dirige.</td></tr>
+          <tr><td>VehGas</td><td>Combustível: Diesel ou Regular.</td><td>Diesel costuma indicar maior quilometragem anual, logo mais exposição.</td></tr>
+          <tr><td>Area</td><td>Código de área (A a F) por densidade urbana.</td><td>Resumo geográfico de urbanização, correlacionado com a frequência.</td></tr>
+          <tr><td>Region</td><td>Região da França (R11 a R94).</td><td>Captura diferenças geográficas (tráfego, clima, roubo) que as outras não pegam.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- GLM -->
+  <section id="glm" class="alt">
+    <div class="container">
+      <span class="eyebrow">Capítulo 4</span>
+      <h2 class="s-title">O GLM: o preço como um produto de fatores.</h2>
+      <p class="s-lead">O GLM (Modelo Linear Generalizado) é o padrão atuarial. Com o link logarítmico, a frequência prevista vira um produto: uma base da carteira multiplicada pela relatividade de cada variável. Cada fator acima de 1 encarece, abaixo de 1 barateia. É isso que torna o GLM auditável, algo que um regulador exige.</p>
+      <div class="formula">Frequência = base &nbsp;×&nbsp; <b>fator(idade)</b> &nbsp;×&nbsp; <b>fator(bônus-malus)</b> &nbsp;×&nbsp; ...</div>
+      <div class="callout">
+        <b>Resultado no projeto.</b> Sobre 678 mil apólices, o GLM de frequência reduz a deviance em 2,97% frente a um baseline ingênuo (a média da carteira). Modesto de propósito: é um GLM regularizado, sem engenharia de variáveis ainda. O valor dele está na transparência, cada fator é explicável e defensável.
+      </div>
+    </div>
+  </section>
+
+  <!-- GBM + SHAP -->
+  <section id="gbm">
+    <div class="container">
+      <span class="eyebrow">Capítulo 5</span>
+      <h2 class="s-title">O GBM e o SHAP: mais precisão, sem perder a explicação.</h2>
+      <p class="s-lead">O GBM (gradient boosting, um conjunto de árvores) é mais preciso porque captura não linearidades e interações que o GLM linear achata. O custo é a opacidade. O SHAP abre essa caixa-preta e mostra, para cada previsão, quanto cada variável empurrou o risco para cima ou para baixo.</p>
+      <div class="grid">
+        <div class="card"><span class="tag">Precisão</span><h3>O GBM ganha do GLM</h3><p>Na frequência, o GBM reduz a deviance 5,15% além do GLM. Ele aproveita curvaturas (como a idade) que o modelo linear não representa bem.</p></div>
+        <div class="card"><span class="tag">Confiança</span><h3>Mas usa os mesmos fatores</h3><p>O SHAP mostra que o GBM se apoia nos mesmos drivers coerentes do GLM (bônus-malus, idade). O ganho é confiável, não um truque sobre ruído.</p></div>
+      </div>
+      <figure class="figure">
+        <img src="assets/shap_gbm_frequency.png" alt="Importância das variáveis do GBM medida por SHAP" />
+        <figcaption>Importância média (SHAP) das variáveis no GBM de frequência. Bônus-malus e idade lideram, como esperado.</figcaption>
+      </figure>
+      <div class="callout"><b>O trade-off central do pricing.</b> GBM é mais preciso, GLM é mais transparente. A resposta madura não é escolher um, e sim medir o ganho do GBM e auditar com SHAP se ele se apoia em fatores legítimos.</div>
+    </div>
+  </section>
+
+  <!-- DO CUSTO AO PREÇO -->
+  <section id="preco" class="alt">
+    <div class="container">
+      <span class="eyebrow">Capítulo 6</span>
+      <h2 class="s-title">Do custo ao preço: elasticidade e otimização.</h2>
+      <p class="s-lead">O prêmio puro é o custo. O preço ótimo equilibra lucro e retenção: para cada apólice, escolhemos o preço que maximiza o lucro esperado, igual a probabilidade de renovar vezes a margem (preço menos custo). Isso exige um modelo de retenção que aprenda como o cliente reage ao preço.</p>
+      <div class="formula">Preço ótimo = max &nbsp; <b>P(renovar | preço)</b> &nbsp;×&nbsp; (<b>preço − custo</b>)</div>
+      <div class="callout warn">
+        <b>A lição honesta do projeto.</b> Estimar elasticidade com dado observacional sofre de endogeneidade: historicamente o preço foi definido pelo risco, não sorteado, então o modelo subestima quanto o cliente foge. Tomado ao pé da letra, o otimizador sugere subir tudo (mais de 70% de lucro), o que é um sinal de alerta, não um resultado. A versão crível, com aumentos limitados a 15%, indica cerca de 28% de lucro. Em produção, identificar a elasticidade real exige um experimento de preço.
+      </div>
+      <figure class="figure">
+        <img src="assets/v2_profit_vs_price.png" alt="Curva de lucro esperado contra multiplicador de preço, com a retenção média" />
+        <figcaption>Lucro esperado da carteira contra o multiplicador de preço, e a retenção média. A faixa realista de ajuste fica em torno de mais ou menos 15%.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ENGENHARIA -->
+  <section id="engenharia">
+    <div class="container">
+      <span class="eyebrow">Capítulo 7</span>
+      <h2 class="s-title">Engenharia: do notebook ao software confiável.</h2>
+      <p class="s-lead">Um modelo só vira produto com engenharia em volta. O projeto trata todas as etapas, do código testado ao monitoramento em produção.</p>
+      <div class="steps">
+        <div class="step"><span class="n">1</span><p><b>Testes e CI.</b> Suíte com pytest e lint com ruff, rodando a cada push via GitHub Actions.</p></div>
+        <div class="step"><span class="n">2</span><p><b>Monitoramento de drift.</b> O PSI compara as distribuições entre períodos e dispara alerta quando o mundo muda. Na base, 2016 e 2017 ficaram estáveis.</p></div>
+        <div class="step"><span class="n">3</span><p><b>Rastreio de experimentos.</b> O MLflow registra parâmetros, métricas e modelos para comparar GLM e GBM de forma reprodutível.</p></div>
+        <div class="step"><span class="n">4</span><p><b>Container.</b> Um Dockerfile empacota a aplicação para rodar igual em qualquer lugar.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPLORE -->
+  <section id="explore" class="alt">
+    <div class="container">
+      <span class="eyebrow">Próximo passo</span>
+      <h2 class="s-title">Explore o projeto.</h2>
+      <p class="s-lead">O código, os notebooks e a documentação estão no repositório. Há também uma aplicação interativa (Flask) que calcula o prêmio de um perfil e mostra a decomposição do GLM e a explicação SHAP, para rodar localmente.</p>
+      <p class="codeline">git clone https://github.com/MatPasquali/Insurance_Pricing_Engine &amp;&amp; cd Insurance_Pricing_Engine &amp;&amp; pip install -r requirements.txt &amp;&amp; python webapp/app.py</p>
+      <div class="ctas" style="margin-top:1.4rem">
+        <a class="btn btn-primary" href="https://github.com/MatPasquali/Insurance_Pricing_Engine" target="_blank" rel="noopener">Abrir no GitHub</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <p><strong>Insurance Pricing Engine</strong> · projeto de portfólio de Mateus de Pasquali da Silva.</p>
+      <p style="margin-top:.4rem">Data Science aplicado a Pricing, Portfolio Management e Credit Risk em seguros · <a href="https://github.com/MatPasquali" target="_blank" rel="noopener">github.com/MatPasquali</a></p>
+    </div>
+  </footer>
+
+</body>
+</html>

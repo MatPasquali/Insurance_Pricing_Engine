@@ -2,6 +2,8 @@
 
 ![CI](https://github.com/MatPasquali/Insurance_Pricing_Engine/actions/workflows/ci.yml/badge.svg)
 
+**Tutorial / site:** https://matpasquali.github.io/Insurance_Pricing_Engine/ &nbsp;·&nbsp; **Repositório:** este.
+
 > **PT** · Um motor de **precificação de seguro de automóvel** construído do zero — e, ao mesmo tempo, um **guia didático** do negócio: o que é o seguro, quais KPIs importam e o que realmente faz um bom motor de preço.
 >
 > **EN** · An auto-insurance **pricing engine** built from scratch, doubling as a hands-on guide to the business: how insurance works, the KPIs that matter, and what makes a good pricing model.
