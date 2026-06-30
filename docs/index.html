@@ -31,6 +31,7 @@
         <span>Pricing Engine<small>Seguro de automóvel</small></span>
       </a>
       <nav class="nav-links" aria-label="Seções">
+        <a href="#experimente">Experimente</a>
         <a href="#negocio">O negócio</a>
         <a href="#premio">Prêmio puro</a>
         <a href="#variaveis">Variáveis</a>
@@ -49,8 +50,9 @@
       <h1>Como uma seguradora chega ao <span class="accent">preço justo</span> do seu seguro.</h1>
       <p class="lead">Esta página é um guia visual do projeto: você vai entender o negócio, o que é frequência e severidade, como um GLM e um GBM funcionam, o que o SHAP explica e como o custo vira preço. Tudo com os resultados reais do nosso motor de pricing.</p>
       <div class="ctas">
-        <a class="btn btn-primary" href="#negocio">Começar o tutorial</a>
-        <a class="btn btn-ghost" href="https://github.com/MatPasquali/Insurance_Pricing_Engine" target="_blank" rel="noopener">Ver o repositório</a>
+        <a class="btn btn-primary" href="#experimente">Experimente o modelo</a>
+        <a class="btn btn-ghost" href="#negocio">Começar o tutorial</a>
+        <a class="btn btn-ghost" href="https://github.com/MatPasquali/Insurance_Pricing_Engine" target="_blank" rel="noopener">Repositório</a>
       </div>
     </div>
   </section>
@@ -163,6 +165,28 @@
     </div>
   </section>
 
+  <!-- INTERATIVO -->
+  <section id="experimente">
+    <div class="container">
+      <span class="eyebrow">Interativo</span>
+      <h2 class="s-title">Experimente o modelo, aqui mesmo.</h2>
+      <p class="s-lead">Este cálculo roda inteiro no seu navegador, com os coeficientes reais do nosso GLM (não há servidor por trás). Ajuste o perfil e veja o prêmio puro e a decomposição se atualizarem na hora.</p>
+      <div class="calc">
+        <form id="calc-form" class="calc-form" aria-label="Perfil do segurado"></form>
+        <div class="calc-out">
+          <div class="metrics-grid" style="grid-template-columns:repeat(3,1fr)">
+            <div class="metric"><div class="v" id="c-freq">—</div><div class="l">Frequência (GLM)</div></div>
+            <div class="metric"><div class="v" id="c-sev">—</div><div class="l">Severidade</div></div>
+            <div class="metric"><div class="v" id="c-premio">—</div><div class="l">Prêmio puro</div></div>
+          </div>
+          <h3 style="margin-top:1.3rem">Como o GLM chegou nesse número</h3>
+          <p class="s-lead" style="font-size:.95rem">Base da carteira multiplicada pela relatividade de cada variável: acima de 1 encarece, abaixo de 1 barateia.</p>
+          <div id="c-decomp" class="decomp"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- DO CUSTO AO PREÇO -->
   <section id="preco" class="alt">
     <div class="container">
@@ -215,5 +239,6 @@
     </div>
   </footer>
 
+  <script src="assets/predict.js"></script>
 </body>
 </html>
