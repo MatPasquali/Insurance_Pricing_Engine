@@ -2,7 +2,11 @@
 
 ![CI](https://github.com/MatPasquali/Insurance_Pricing_Engine/actions/workflows/ci.yml/badge.svg)
 
-**Tutorial / site:** https://matpasquali.github.io/Insurance_Pricing_Engine/ &nbsp;·&nbsp; **Repositório:** este.
+### Tutorial interativo, no ar
+
+**→ https://matpasquali.github.io/Insurance_Pricing_Engine/**
+
+Um guia visual que explica tudo que está abaixo, com uma **calculadora ao vivo**: mude o perfil e veja o prêmio puro e a decomposição do GLM se montarem no navegador (o modelo roda client-side, sem servidor). Este repositório é o companheiro técnico do site: o código, os notebooks, o app local com GBM + SHAP e a parte de MLOps.
 
 > **PT** · Um motor de **precificação de seguro de automóvel** construído do zero — e, ao mesmo tempo, um **guia didático** do negócio: o que é o seguro, quais KPIs importam e o que realmente faz um bom motor de preço.
 >
@@ -20,7 +24,7 @@ Para **quem está começando no mundo de seguros de automóvel** e precisa enten
 
 Cada conceito aparece **explicado** *e* **implementado em código que roda**. Se você ler este README do começo ao fim, sai sabendo conversar sobre pricing de auto com propriedade.
 
-> 💡 **Atalho:** quer só navegar os resultados? Vá para [`notebooks/00_overview.ipynb`](notebooks/00_overview.ipynb). Quer entender o porquê de tudo? Continue aqui.
+> 💡 **Atalho:** quer a versão visual e interativa? Abra o [site](https://matpasquali.github.io/Insurance_Pricing_Engine/). Quer o porquê de tudo, em texto e código? Continue aqui.
 
 ---
 
@@ -160,7 +164,7 @@ Dois "atos", cada conceito acima virando código que roda. Dataset principal: **
 | Frequência (GLM Poisson) | −2,97% de *deviance* vs média ingênua (678k apólices) |
 | Severidade (GLM Gamma) + Prêmio puro | Tweedie direto **calibra a carteira (1,04)**; o produto freq×sev erra o total em **+33%** |
 | GLM vs GBM + **SHAP** | GBM **+5,15%** mais preciso, mas o SHAP mostra os **mesmos drivers** (bônus-malus, idade) → ganho **confiável** |
-| Demo interativa | `streamlit_app.py`: perfil → prêmio + explicação SHAP ao vivo |
+| Demo interativa | App local Flask ([`webapp/`](webapp/)) e a [calculadora do site](https://matpasquali.github.io/Insurance_Pricing_Engine/#experimente) |
 
 ![SHAP — importância das features do GBM](reports/figures/shap_gbm_frequency.png)
 
@@ -179,11 +183,11 @@ Dois "atos", cada conceito acima virando código que roda. Dataset principal: **
 
 | Entrega | O que demonstra |
 |---|---|
-| **Testes** (pytest) | 8 testes do motor (PSI, modelos, dados) — a base do CI |
+| **Testes** (pytest) | 9 testes do motor (PSI, modelos, decomposição GLM, dados) — a base do CI |
 | **CI** (GitHub Actions) | `ruff` (lint) + `pytest` a cada push — badge verde no topo |
 | **Drift monitoring** (PSI) | `run_drift_report.py` compara 2016→2017 da carteira ES (hoje estável; o framework dispara alerta quando muda) |
 | **MLflow** | tracking de experimentos (GLM vs GBM) em backend SQLite |
-| **Docker** | `Dockerfile` containeriza a demo Streamlit |
+| **Docker** | `Dockerfile` containeriza a aplicação |
 
 ---
 
@@ -197,8 +201,8 @@ Dois "atos", cada conceito acima virando código que roda. Dataset principal: **
 | [`03_diagnostics`](notebooks/03_diagnostics.ipynb) | Relatividades, observado×previsto, lift, Gini/Lorenz |
 | [`04_pricing_optimization`](notebooks/04_pricing_optimization.ipynb) | Elasticidade, custo, otimização e a armadilha da endogeneidade |
 
-**Motor (código reutilizável):** [`src/pricing/`](src/pricing/) — `data`, `features`, `frequency`, `severity`, `pure_premium`, `gbm`, `etl` (v1); `es_data`, `es_models` (v2); `monitoring` (v3 — PSI). Testes em [`tests/`](tests/), CI em [`.github/workflows/ci.yml`](.github/workflows/ci.yml), container no [`Dockerfile`](Dockerfile).
-**Documentação viva:** [`docs/Documentacao_Pricing_Engine.docx`](docs/Documentacao_Pricing_Engine.docx), gerada por script versionado.
+**Motor (código reutilizável):** [`src/pricing/`](src/pricing/) — `data`, `features`, `frequency`, `severity`, `pure_premium`, `gbm`, `etl`, `explain` (v1); `es_data`, `es_models` (v2); `monitoring` (v3, PSI). Testes em [`tests/`](tests/), CI em [`.github/workflows/ci.yml`](.github/workflows/ci.yml), container no [`Dockerfile`](Dockerfile).
+**Aplicação local:** [`webapp/`](webapp/), app Flask que calcula o prêmio de um perfil com a decomposição do GLM e o SHAP do GBM. **Site:** [`docs/`](docs/), o tutorial publicado no GitHub Pages.
 
 ---
 
@@ -212,7 +216,7 @@ python run_frequency_baseline.py       # v1: frequência (Poisson)
 python run_pure_premium.py             # v1: prêmio puro (freq×sev vs Tweedie)
 python run_gbm_vs_glm.py               # v1: GLM vs GBM + SHAP
 python run_pricing_optimization.py     # v2: elasticidade + otimização (validação temporal)
-python -m streamlit run streamlit_app.py   # demo interativa
+python webapp/app.py                   # app local (Flask) -> http://127.0.0.1:5000
 python run_drift_report.py             # v3: monitoramento de drift (PSI)
 python run_mlflow_experiment.py        # v3: tracking de experimentos (MLflow)
 pytest -q                              # roda os testes (8)
@@ -220,7 +224,7 @@ pytest -q                              # roda os testes (8)
 
 ## 🧰 Stack
 
-Python 3.14 · scikit-learn · SHAP · pandas · NumPy · matplotlib · Streamlit · python-docx
+Python 3.14 · scikit-learn · SHAP · pandas · NumPy · matplotlib · Flask · MLflow
 
 ## 🗺️ Roadmap
 
